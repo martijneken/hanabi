@@ -8,9 +8,29 @@ namespace Hanabi
 {
     public class Hint
     {
-        public int? Suit;
-        public int? Number;
-        public List<int> Positions;
+        private Hint() {}
+        public Hint(Player p, int? suit, int? num)
+        {
+            this.For = p;
+            // Check hint content;
+            if (suit.HasValue && num.HasValue) throw new ArgumentException("both dimensions");
+            this.Suit = suit;
+            this.Number = num;
+            // Find matching card positions.
+            this.Positions = new List<int>();
+            var cards = p.Hand();
+            for (int i = 0; i < cards.Count; i++)
+            {
+                bool match = num.HasValue ? num.Value == cards[i].Number : suit.Value == cards[i].Suit;
+                if (match) this.Positions.Add(i);
+            }
+            if (Positions.Count <= 0) throw new ArgumentException("no matching cards");
+        }
+
+        public Player For { get; private set; }
+        public int? Suit { get; private set; }
+        public int? Number { get; private set; }
+        public List<int> Positions { get; private set; }
 
         public override string ToString()
         {
@@ -22,6 +42,9 @@ namespace Hanabi
 
     public class Game
     {
+        const int FAILS = 3;
+        const int HINTS = 8;
+
         public Game(int p)
         {
             this.Deck = new Deck();
@@ -30,8 +53,8 @@ namespace Hanabi
             {
                 this.Players.Add(new Player(this, i));
             }
-            this.Fails = 3;
-            this.Hints = 8;
+            this.Fails = FAILS;
+            this.Hints = HINTS;
             this.FinalTurns = p;
         }
         public Deck Deck { get; private set; }
@@ -83,14 +106,15 @@ namespace Hanabi
         public Card Discard(Card c) {
             Console.Out.WriteLine("discards {0}", c.ToString());
             c.In = Card.Holder.DISCARD;
-            this.Hints++;
+            if (this.Hints < HINTS) this.Hints++;
             return Draw();
         }
 
-        public void Hint(Hint h, int idx)
+        public void Hint(Hint h)
         {
-            Console.Out.Write("hints to player {0}: {1}", idx + 1, h.ToString());
-            this.Players[idx].GetHint(h);
+            if (this.Hints <= 0) throw new InvalidOperationException("no hints available");
+            Console.Out.WriteLine("hints to player {0}: {1}", h.For.Index + 1, h.ToString());
+            h.For.GetHint(h);
             this.Hints--;
         }
     }
