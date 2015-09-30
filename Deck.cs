@@ -29,9 +29,9 @@ namespace Hanabi
         public Deck()
         {
             all = new List<Card>();
-            for (int s = 1; s <= Card.Suits(); s++)
+            for (int s = 1; s <= Card.SUITS; s++)
             {
-                for (int n = 1; n <= Card.Numbers(); n++)
+                for (int n = 1; n <= Card.NUMBERS; n++)
                 {
                     for (int i = 0; i < Card.Copies(n); i++)
                     {
@@ -49,7 +49,7 @@ namespace Hanabi
 
         public int? StuckAt(int suit)
         {
-            for (int n = NextPlay(suit); n <= Card.Numbers(); n++)
+            for (int n = NextPlay(suit); n <= Card.NUMBERS; n++)
             {
                 Card need = new Card { Suit = suit, Number = n };
                 if (Down().CountSame(need) == need.Copies()) return n;

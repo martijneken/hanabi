@@ -84,8 +84,8 @@ namespace Hanabi
     /// </summary>
     public class Card
     {
-        public static int Suits() { return 5; }
-        public static int Numbers() { return 5; }
+        public static readonly int SUITS = 5;
+        public static readonly int NUMBERS = 5;
         public static int Copies(int number)
         {
             switch (number)

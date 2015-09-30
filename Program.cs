@@ -93,6 +93,7 @@ namespace Hanabi
             {
                 Console.Out.WriteLine("OK!");
                 c.In = Card.Holder.BOARD;
+                if (c.Number == Card.NUMBERS && this.Hints < HINTS) this.Hints++;
             }
             else
             {
@@ -155,7 +156,7 @@ namespace Hanabi
 
         static void Main(string[] args)
         {
-            int games = 1;
+            int games = 100;
             int total = 0;
             for (int i = 0; i < games; i++)
             {

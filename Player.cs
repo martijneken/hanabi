@@ -113,8 +113,8 @@ namespace Hanabi
             }
 
             // TODO: override states based on last hint (requires history)
-            // TODO: immediately PLAY the highest card hinted by number?
-            // Keep any queued cards that have a known number or suit.
+            // TODO: immediately PLAY on recent hints according to position?
+            // Keep any queued cards that have a known number or suit (i.e. received a hint).
             foreach (HeldCard c in me.Cards.Where(c =>
                 c.Label == Intent.QUEUE && (c.Number().HasValue || c.Suit().HasValue)))
             {
@@ -141,6 +141,7 @@ namespace Hanabi
                 var pole = next.Cards.FirstOrDefault(c => c.Label == Intent.QUEUE);
                 if (pole != null && pole.Actual.LastChance(next, me))
                 {
+                    //if (!pole.Number().HasValue) return Move.DoHint(new Hint(next, null, pole.Actual.Number));
                     if (!pole.Suit().HasValue) return Move.DoHint(new Hint(next, pole.Actual.Suit, null));
                 }
             }
