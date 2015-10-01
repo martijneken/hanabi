@@ -60,21 +60,16 @@ namespace Hanabi
 
         public void GetHint(Hint h)
         {
+            // TODO: store a history of received hints ... do we need a full move history?
             for (int i = 0; i < this.Cards.Count; i++)
             {
-                HeldCard c = this.Cards[i];
-                var match = h.Positions.Contains(i);
-                var list = h.Number.HasValue ? c.Numbers : c.Suits;
-                var value = h.Number.HasValue ? h.Number.Value : h.Suit.Value;
-                if (match) // is definitely the given value
-                {
-                    list.Clear();
-                    list.Add(value);
-                }
-                else // cannot be the given value
-                {
-                    list.Remove(value);
-                }
+                HeldCard card = this.Cards[i];
+                bool match = h.Positions.Contains(i);
+                int value = h.Number.HasValue ? h.Number.Value : h.Suit.Value;
+                Func<Card, int> get = c => h.Number.HasValue ? c.Number : c.Suit;
+                // If the hint matches this card, remove all other values.
+                // If the hint does not match this card, remove the hinted value.
+                card.Possible.RemoveAll(c => match ? get(c) != value : get(c) == value);
             }
         }
 
@@ -114,7 +109,7 @@ namespace Hanabi
 
             // TODO: override states based on last hint (requires history)
             // TODO: immediately PLAY on recent hints according to position?
-            // Keep any queued cards that have a known number or suit (i.e. received a hint).
+            // Keep any queued cards that have a known number or suit (likely received a hint).
             foreach (HeldCard c in me.Cards.Where(c =>
                 c.Label == Intent.QUEUE && (c.Number().HasValue || c.Suit().HasValue)))
             {

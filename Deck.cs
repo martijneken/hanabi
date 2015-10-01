@@ -41,7 +41,7 @@ namespace Hanabi
             }
             all.Shuffle();
         }
-        List<Card> all;
+        private List<Card> all;
 
         public int Score() { return all.Count(c => c.In == Card.Holder.BOARD); }
         public int Depth() { return all.Count(c => c.In == Card.Holder.DECK); }

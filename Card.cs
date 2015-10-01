@@ -38,18 +38,16 @@ namespace Hanabi
             bool next = true;
             bool played = true;
             bool stuck = true;
-            foreach (int s in card.Suits)
+            foreach (Card c in card.Possible)
             {
                 if (!next && !played && !stuck) break; // optimization
 
-                int nxt = me.Game.Deck.NextPlay(s);
-                int? stuckat = me.Game.Deck.StuckAt(s);
-                foreach (int n in card.Numbers)
-                {
-                    if (nxt != n) next = false;
-                    if (nxt <= n) played = false;
-                    if (!stuckat.HasValue || stuckat.Value > n) stuck = false;
-                }
+                int nxt = me.Game.Deck.NextPlay(c.Suit);
+                int? stuckat = me.Game.Deck.StuckAt(c.Suit);
+
+                if (nxt != c.Number) next = false;
+                if (nxt <= c.Number) played = false;
+                if (!stuckat.HasValue || stuckat.Value > c.Number) stuck = false;
             }
             // If all states match playability or discardability, change the state.
             if (next) return Intent.PLAY;
@@ -135,19 +133,34 @@ namespace Hanabi
         public HeldCard(Card a)
         {
             this.Actual = a;
-            this.Suits = new List<int>() { 1, 2, 3, 4, 5 };
-            this.Numbers = new List<int>() { 1, 2, 3, 4, 5 };
+            this.Possible = new List<Card>();
+            for (int s = 1; s <= Card.SUITS; s++)
+            {
+                for (int n = 1; n <= Card.NUMBERS; n++)
+                {
+                    this.Possible.Add(new Card { Suit = s, Number = n });
+                }
+            }
             this.Label = Intent.QUEUE;
         }
 
         public Card Actual { get; private set; }
-        // TODO: should represent this as a suits x numbers matrix!
-        public List<int> Suits { get; private set; }
-        public List<int> Numbers { get; private set; }
+        public List<Card> Possible { get; private set; }
         public Intent Label { get; set; }
 
-        public bool Known() { return Suits.Count <= 1 && Numbers.Count <= 1; }
-        public int? Suit() { return Suits.Count > 1 ? (int?)null : Suits[0]; }
-        public int? Number() { return Numbers.Count > 1 ? (int?)null : Numbers[0]; }
+        public bool Known()
+        {
+            return Possible.Count <= 1;
+        }
+        public int? Suit()
+        {
+            var suits = Possible.Select(c => c.Suit).Distinct();
+            return suits.Count() > 1 ? (int?)null : suits.First();
+        }
+        public int? Number()
+        {
+            var nums = Possible.Select(c => c.Number).Distinct();
+            return nums.Count() > 1 ? (int?)null : nums.First();
+        }
     }
 }
