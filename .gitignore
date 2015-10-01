@@ -215,3 +215,7 @@ FakesAssemblies/
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
+
+# Makefile build result
+# (gee, Visual Studio must output a lot of cruft!)
+Hanabi.exe
