@@ -98,8 +98,8 @@ namespace Hanabi
     {
         public Move Play(Player me)
         {
-            // TODO: narrow down card possibilities by process of elimination
-            // TODO: include incomplete knowledge of own hand (known numbers, known suits).
+            // Narrow down card possibilities by process of elimination.
+            me.RestrictCards();
 
             // Re-evaluate all cards based on new information in hand, board, and opponents' hands.
             foreach (HeldCard c in me.Cards)

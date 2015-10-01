@@ -28,6 +28,25 @@ namespace Hanabi
             return cards.Count(c => Compare.Equals(c, card));
         }
 
+        public static void RestrictCards(this Player me)
+        {
+            // Find the cards visible to the player: down or in others' hands.
+            var others = me.Game.Players.Where(p => p != me).Select(p => p.Hand());
+            var visible = me.Game.Deck.Down().Concat(others.SelectMany(c => c));
+            // Derive any 'closed' cards (those definitely not in own hand).
+            var counts = visible.GroupBy(c => c.ToString(), (key, g) => new { Card = g.First(), Count = g.Count() });
+            var closed = new HashSet<Card>(counts.Where(g => g.Card.Copies() == g.Count).Select(g => g.Card), Compare);
+            if (closed.Count == 0) return;
+
+            // Narrow down the options for each 
+            foreach (HeldCard held in me.Cards)
+            {
+                held.Possible.RemoveAll(c => closed.Contains(c));
+            }
+
+            // TODO: include incomplete knowledge of own hand (known numbers, known suits).
+        }
+
         /// <summary>
         /// Calculate a card's state based on given information only.
         /// </summary>
@@ -65,7 +84,7 @@ namespace Hanabi
             // If player has multiple instances in hand, it's not a last chance.
             int held = p.Hand().CountSame(card);
             if (held > 1) return false;
-            // If it's already on the board, it's not needed at all.
+            // If it's already been played, it's not needed at all.
             int board = p.Game.Deck.Board().CountSame(card);
             if (board > 0) return false;
             // Last chance if all copies of this card have been seen.
@@ -147,6 +166,7 @@ namespace Hanabi
         public Card Actual { get; private set; }
         public List<Card> Possible { get; private set; }
         public Intent Label { get; set; }
+        // TODO: if strategies get savvier, we may need internal and external Possible, to avoid leaking info
 
         public bool Known()
         {
