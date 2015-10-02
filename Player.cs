@@ -133,12 +133,19 @@ namespace Hanabi
                     }
                 }
                 // For pole cards that shouldn't be discarded, hint suit. This should move them into state KEEP.
-                var pole = next.Cards.FirstOrDefault(c => c.Label == Intent.QUEUE);
-                if (pole != null && pole.Actual.LastChance(next, me))
+                // Only hint when there are no PLAY or DISCARD cards, since these are higher priority.
+                // TODO: enable this once we have better hinting. At the moment it does not help.
+                /*
+                if (next.Cards.FirstOrDefault(c => c.Label == Intent.PLAY || c.Label == Intent.DISCARD) == null)
                 {
-                    //if (!pole.Number().HasValue) return Move.DoHint(new Hint(next, null, pole.Actual.Number));
-                    if (!pole.Suit().HasValue) return Move.DoHint(new Hint(next, pole.Actual.Suit, null));
+                    var pole = next.Cards.FirstOrDefault(c => c.Label == Intent.QUEUE);
+                    if (pole != null && pole.Actual.LastChance(next, me))
+                    {
+                        //if (!pole.Number().HasValue) return Move.DoHint(new Hint(next, null, pole.Actual.Number));
+                        if (!pole.Suit().HasValue) return Move.DoHint(new Hint(next, pole.Actual.Suit, null));
+                    }
                 }
+                */
             }
 
             // Play cards that are ready (lowest number first).
